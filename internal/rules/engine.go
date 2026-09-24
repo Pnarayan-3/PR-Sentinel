@@ -3,7 +3,7 @@ package rules
 import (
 	"strings"
 
-	"github.com/Pnarayan-3/pr-sentinel/internal/analyzer"
+	"github.com/Pnarayan-3/pr-sentinel/internal/model"
 )
 
 type Rule struct {
@@ -27,9 +27,9 @@ func NewEngine(rules []Rule) *Engine {
 }
 
 func (e *Engine) AnalyzeFile(
-	source analyzer.SourceFile,
-) []analyzer.Finding {
-	var findings []analyzer.Finding
+	source model.SourceFile,
+) []model.Finding {
+	var findings []model.Finding
 
 	for lineNumber, line := range source.Lines {
 		lowerLine := strings.ToLower(line)
@@ -42,9 +42,9 @@ func (e *Engine) AnalyzeFile(
 				) {
 					findings = append(
 						findings,
-						analyzer.Finding{
+						model.Finding{
 							ID:          rule.ID,
-							Severity:    analyzer.Severity(rule.Severity),
+							Severity:    model.Severity(rule.Severity),
 							Category:    rule.Category,
 							File:        source.Path,
 							Line:        lineNumber + 1,

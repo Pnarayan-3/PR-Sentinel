@@ -1,8 +1,6 @@
 package report
 
-import (
-	"github.com/Pnarayan-3/pr-sentinel/internal/analyzer"
-)
+import "github.com/Pnarayan-3/pr-sentinel/internal/model"
 
 type Summary struct {
 	Critical int
@@ -13,21 +11,21 @@ type Summary struct {
 }
 
 func BuildSummary(
-	findings []analyzer.Finding,
+	findings []model.Finding,
 ) Summary {
 	var summary Summary
 
 	for _, finding := range findings {
 		switch finding.Severity {
-		case analyzer.Critical:
+		case model.Critical:
 			summary.Critical++
-		case analyzer.High:
+		case model.High:
 			summary.High++
-		case analyzer.Medium:
+		case model.Medium:
 			summary.Medium++
-		case analyzer.Low:
+		case model.Low:
 			summary.Low++
-		case analyzer.Info:
+		case model.Info:
 			summary.Info++
 		}
 	}

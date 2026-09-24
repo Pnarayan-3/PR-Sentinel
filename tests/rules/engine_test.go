@@ -3,7 +3,7 @@ package rules_test
 import (
 	"testing"
 
-	"github.com/Pnarayan-3/pr-sentinel/internal/analyzer"
+	"github.com/Pnarayan-3/pr-sentinel/internal/model"
 	"github.com/Pnarayan-3/pr-sentinel/internal/rules"
 )
 
@@ -20,7 +20,7 @@ func TestEngineDetectsPattern(t *testing.T) {
 		},
 	})
 
-	source := analyzer.SourceFile{
+	source := model.SourceFile{
 		Path: "config.go",
 		Lines: []string{
 			"package main",

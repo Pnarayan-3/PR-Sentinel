@@ -3,17 +3,14 @@ package analyzer
 import (
 	"os"
 	"strings"
+
+	"github.com/Pnarayan-3/pr-sentinel/internal/model"
 )
 
-type SourceFile struct {
-	Path  string
-	Lines []string
-}
-
-func ReadSourceFile(path string) (SourceFile, error) {
+func ReadSourceFile(path string) (model.SourceFile, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return SourceFile{}, err
+		return model.SourceFile{}, err
 	}
 
 	content := strings.ReplaceAll(
@@ -24,7 +21,7 @@ func ReadSourceFile(path string) (SourceFile, error) {
 
 	lines := strings.Split(content, "\n")
 
-	return SourceFile{
+	return model.SourceFile{
 		Path:  path,
 		Lines: lines,
 	}, nil

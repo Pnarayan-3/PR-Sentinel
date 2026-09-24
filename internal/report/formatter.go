@@ -4,25 +4,25 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Pnarayan-3/pr-sentinel/internal/analyzer"
+	"github.com/Pnarayan-3/pr-sentinel/internal/model"
 )
 
-func severityIcon(severity analyzer.Severity) string {
+func severityIcon(severity model.Severity) string {
 	switch severity {
-	case analyzer.Critical:
+	case model.Critical:
 		return "🔴"
-	case analyzer.High:
+	case model.High:
 		return "🟠"
-	case analyzer.Medium:
+	case model.Medium:
 		return "🟡"
-	case analyzer.Low:
+	case model.Low:
 		return "🔵"
 	default:
 		return "ℹ️"
 	}
 }
 
-func formatFinding(finding analyzer.Finding) string {
+func formatFinding(finding model.Finding) string {
 	var builder strings.Builder
 
 	builder.WriteString(

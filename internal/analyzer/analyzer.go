@@ -2,20 +2,20 @@ package analyzer
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/Pnarayan-3/pr-sentinel/internal/config"
+	"github.com/Pnarayan-3/pr-sentinel/internal/model"
 	"github.com/Pnarayan-3/pr-sentinel/internal/rules"
 )
 
-func Analyze(cfg config.Config) (Results, error) {
+func Analyze(cfg config.Config) (model.Results, error) {
 	ruleDefinitions, err := rules.LoadFromMarkdown(
 		cfg.RulesFile,
 	)
 
 	if err != nil {
-		return Results{}, fmt.Errorf(
+		return model.Results{}, fmt.Errorf(
 			"failed to load rules: %w",
 			err,
 		)
@@ -28,13 +28,13 @@ func Analyze(cfg config.Config) (Results, error) {
 	)
 
 	if err != nil {
-		return Results{}, fmt.Errorf(
+		return model.Results{}, fmt.Errorf(
 			"failed to scan repository: %w",
 			err,
 		)
 	}
 
-	results := Results{}
+	results := model.Results{}
 
 	for _, file := range files {
 		source, err := ReadSourceFile(file)
@@ -71,10 +71,4 @@ func relativePath(root, file string) string {
 	}
 
 	return filepath.ToSlash(relative)
-}
-
-func fileExists(path string) bool {
-	_, err := os.Stat(path)
-
-	return err == nil
 }

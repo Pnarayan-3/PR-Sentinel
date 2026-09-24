@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Pnarayan-3/pr-sentinel/internal/analyzer"
+	"github.com/Pnarayan-3/pr-sentinel/internal/model"
 )
 
-func GenerateMarkdown(results analyzer.Results) string {
+func GenerateMarkdown(results model.Results) string {
 	summary := BuildSummary(results.Findings)
 
 	var builder strings.Builder
