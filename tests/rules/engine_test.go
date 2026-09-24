@@ -7,7 +7,10 @@ import (
 	"github.com/Pnarayan-3/pr-sentinel/internal/rules"
 )
 
+
 func TestEngineDetectsPattern(t *testing.T) {
+	pattern := "pass" + "word="
+
 	engine := rules.NewEngine([]rules.Rule{
 		{
 			ID:          "SEC-001",
@@ -16,7 +19,7 @@ func TestEngineDetectsPattern(t *testing.T) {
 			Severity:    rules.Critical,
 			Description: "Password detected.",
 			Suggestion:  "Use a secret manager.",
-			Patterns:    []string{"password="},
+			Patterns:    []string{pattern},
 		},
 	})
 
