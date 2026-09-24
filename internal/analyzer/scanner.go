@@ -6,75 +6,109 @@ import (
 	"strings"
 )
 
-var ignoredDirectories = map[string]bool{
-	".git":         true,
-	".github":      true,
-	".idea":        true,
-	".vscode":      true,
-	"node_modules": true,
-	"vendor":       true,
-	"target":       true,
-	"build":        true,
-	"dist":         true,
-	".terraform":   true,
-}
-
 func ScanRepository(root string) ([]string, error) {
 	var files []string
 
-	err := filepath.Walk(root, func(
-		path string,
-		info os.FileInfo,
-		err error,
-	) error {
-		if err != nil {
-			return err
-		}
-
-		if info.IsDir() {
-			if ignoredDirectories[info.Name()] {
-				return filepath.SkipDir
+	err := filepath.Walk(
+		root,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
 			}
 
+			// Ignore directories that should never be analyzed.
+			if info.IsDir() {
+				if shouldIgnoreDirectory(path, root) {
+					return filepath.SkipDir
+				}
+
+				return nil
+			}
+
+			// Ignore files that should not be analyzed.
+			if shouldIgnoreFile(path, root) {
+				return nil
+			}
+
+			files = append(files, path)
+
 			return nil
-		}
+		},
+	)
 
-		if !isAnalyzableFile(path) {
-			return nil
-		}
+	if err != nil {
+		return nil, err
+	}
 
-		files = append(files, path)
-
-		return nil
-	})
-
-	return files, err
+	return files, nil
 }
 
-func isAnalyzableFile(path string) bool {
-	extension := strings.ToLower(filepath.Ext(path))
+func shouldIgnoreDirectory(path, root string) bool {
+	relativePath, err := filepath.Rel(root, path)
+	if err != nil {
+		return false
+	}
 
-	switch extension {
-	case ".go",
-		".java",
-		".cs",
-		".py",
-		".js",
-		".ts",
-		".tsx",
-		".jsx",
-		".rb",
-		".php",
-		".c",
-		".cpp",
-		".h",
-		".hpp",
-		".yaml",
-		".yml",
-		".json",
-		".tf",
-		".sh",
-		".sql":
+	relativePath = filepath.ToSlash(relativePath)
+
+	if relativePath == "." {
+		return false
+	}
+
+	ignoredDirectories := []string{
+		".git",
+		".github",
+		"node_modules",
+		"vendor",
+		"testdata",
+	}
+
+	for _, directory := range ignoredDirectories {
+		if relativePath == directory ||
+			strings.HasPrefix(relativePath, directory+"/") {
+
+			return true
+		}
+	}
+
+	return false
+}
+
+func shouldIgnoreFile(path, root string) bool {
+	relativePath, err := filepath.Rel(root, path)
+	if err != nil {
+		return true
+	}
+
+	relativePath = filepath.ToSlash(relativePath)
+
+	// Ignore test fixtures.
+	if strings.Contains(relativePath, "/testdata/") ||
+		strings.HasPrefix(relativePath, "testdata/") {
+		return true
+	}
+
+	// Only analyze source-code files.
+	allowedExtensions := map[string]bool{
+		".go":   true,
+		".java": true,
+		".cs":   true,
+		".js":   true,
+		".ts":   true,
+		".jsx":  true,
+		".tsx":  true,
+		".py":   true,
+		".rb":   true,
+		".php":  true,
+		".cpp":  true,
+		".c":    true,
+		".h":    true,
+		".hpp":  true,
+	}
+
+	extension := strings.ToLower(filepath.Ext(relativePath))
+
+	if !allowedExtensions[extension] {
 		return true
 	}
 
