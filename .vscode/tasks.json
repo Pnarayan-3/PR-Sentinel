@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "PR Sentinel - Analyze Repository",
+      "type": "shell",
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-v",
+        "${workspaceFolder}:/workspace",
+        "pr-sentinel"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

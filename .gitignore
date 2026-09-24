@@ -1,0 +1,25 @@
+# Go
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go test
+*.test
+*.out
+
+# Coverage
+coverage.out
+coverage.html
+
+# Generated reports
+pr-sentinel-report.md
+
+# IDE-specific files
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
