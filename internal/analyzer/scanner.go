@@ -77,14 +77,38 @@ func shouldIgnoreDirectory(path, root string) bool {
 func shouldIgnoreFile(path, root string) bool {
 	relativePath, err := filepath.Rel(root, path)
 	if err != nil {
-		return false
+		return true
 	}
 
 	relativePath = filepath.ToSlash(relativePath)
 
-	// Ignore files inside testdata directories.
+	// Ignore test fixtures.
 	if strings.Contains(relativePath, "/testdata/") ||
 		strings.HasPrefix(relativePath, "testdata/") {
+		return true
+	}
+
+	// Only analyze source-code files.
+	allowedExtensions := map[string]bool{
+		".go":   true,
+		".java": true,
+		".cs":   true,
+		".js":   true,
+		".ts":   true,
+		".jsx":  true,
+		".tsx":  true,
+		".py":   true,
+		".rb":   true,
+		".php":  true,
+		".cpp":  true,
+		".c":    true,
+		".h":    true,
+		".hpp":  true,
+	}
+
+	extension := strings.ToLower(filepath.Ext(relativePath))
+
+	if !allowedExtensions[extension] {
 		return true
 	}
 
