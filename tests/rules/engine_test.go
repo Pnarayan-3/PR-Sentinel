@@ -44,7 +44,7 @@ func TestEngineDetectsPattern(t *testing.T) {
 		)
 	}
 
-	if findings[0].Severity != analyzer.Critical {
+	if findings[0].Severity != model.Critical {
 		t.Fatalf(
 			"expected CRITICAL, got %s",
 			findings[0].Severity,
