@@ -28,7 +28,7 @@ func TestEngineDetectsPattern(t *testing.T) {
 		Path: "config.go",
 		Lines: []string{
 			"package main",
-			//"password=hello123",
+			"password=hello123",
 		},
 	}
 
