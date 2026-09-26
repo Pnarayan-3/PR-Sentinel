@@ -1,11 +1,14 @@
 package github
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 )
+
+const githubAPIBaseURL = "https://api.github.com"
 
 type Client struct {
 	Token      string
@@ -27,18 +30,37 @@ func NewClient(
 
 func (c *Client) request(
 	method string,
-	url string,
-	body io.Reader,
+	path string,
+	body interface{},
 ) (*http.Response, error) {
+
+	var requestBody io.Reader
+
+	if body != nil {
+		jsonBody, err := json.Marshal(body)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"failed to encode request body: %w",
+				err,
+			)
+		}
+
+		requestBody = bytes.NewBuffer(jsonBody)
+	}
+
+	url := githubAPIBaseURL + path
 
 	req, err := http.NewRequest(
 		method,
 		url,
-		body,
+		requestBody,
 	)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(
+			"failed to create GitHub request: %w",
+			err,
+		)
 	}
 
 	req.Header.Set(
@@ -56,10 +78,20 @@ func (c *Client) request(
 		"2022-11-28",
 	)
 
+	if body != nil {
+		req.Header.Set(
+			"Content-Type",
+			"application/json",
+		)
+	}
+
 	response, err := http.DefaultClient.Do(req)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(
+			"GitHub API request failed: %w",
+			err,
+		)
 	}
 
 	return response, nil
@@ -88,16 +120,4 @@ func (c *Client) ensureSuccess(
 		response.StatusCode,
 		string(body),
 	)
-}
-
-func decodeJSON(
-	response *http.Response,
-	target interface{},
-) error {
-
-	defer response.Body.Close()
-
-	return json.NewDecoder(
-		response.Body,
-	).Decode(target)
 }

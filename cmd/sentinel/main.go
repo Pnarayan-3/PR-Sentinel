@@ -8,8 +8,8 @@ import (
 
 	"github.com/Pnarayan-3/pr-sentinel/internal/analyzer"
 	"github.com/Pnarayan-3/pr-sentinel/internal/config"
-	"github.com/Pnarayan-3/pr-sentinel/internal/report"
 	githubclient "github.com/Pnarayan-3/pr-sentinel/internal/github"
+	"github.com/Pnarayan-3/pr-sentinel/internal/report"
 )
 
 func main() {
@@ -48,6 +48,7 @@ func runPullRequestMode(
 	fmt.Println()
 
 	prNumber, err := strconv.Atoi(prNumberString)
+
 	if err != nil {
 		fmt.Printf(
 			"Invalid PR_NUMBER: %v\n",
@@ -90,8 +91,8 @@ func runPullRequestMode(
 		repo,
 	)
 
-	files, err := client.GetPullRequestFiles(
-		prNumber,
+	files, err := client.GetChangedFiles(
+		prNumberString,
 	)
 
 	if err != nil {
@@ -110,6 +111,7 @@ func runPullRequestMode(
 
 	for _, file := range files {
 		fmt.Println()
+
 		fmt.Printf(
 			"📁 %s\n",
 			file.Filename,
@@ -136,14 +138,20 @@ func runPullRequestMode(
 		)
 
 		if file.Patch != "" {
-			fmt.Println("   Patch available: yes")
+			fmt.Println(
+				"   Patch available: yes",
+			)
 		} else {
-			fmt.Println("   Patch available: no")
+			fmt.Println(
+				"   Patch available: no",
+			)
 		}
 	}
 
 	fmt.Println()
-	fmt.Println("PR diff retrieval completed.")
+	fmt.Println(
+		"PR diff retrieval completed.",
+	)
 }
 
 func runLocalMode() {
@@ -151,6 +159,7 @@ func runLocalMode() {
 	fmt.Println()
 
 	cfg, err := config.Load(".")
+
 	if err != nil {
 		fmt.Printf(
 			"Configuration error: %v\n",
@@ -170,6 +179,7 @@ func runLocalMode() {
 	)
 
 	results, err := analyzer.Analyze(cfg)
+
 	if err != nil {
 		fmt.Printf(
 			"Analysis failed: %v\n",
@@ -179,7 +189,9 @@ func runLocalMode() {
 	}
 
 	fmt.Println()
-	fmt.Println("Analysis completed.")
+	fmt.Println(
+		"Analysis completed.",
+	)
 
 	fmt.Printf(
 		"Files analyzed: %d\n",
@@ -191,7 +203,9 @@ func runLocalMode() {
 		len(results.Findings),
 	)
 
-	output := report.GenerateMarkdown(results)
+	output := report.GenerateMarkdown(
+		results,
+	)
 
 	fmt.Println()
 	fmt.Println(output)
