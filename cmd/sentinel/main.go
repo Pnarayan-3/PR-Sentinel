@@ -3,55 +3,98 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 
-	"github.com/Pnarayan-3/pr-sentinel/internal/analyzer"
-	"github.com/Pnarayan-3/pr-sentinel/internal/config"
-	"github.com/Pnarayan-3/pr-sentinel/internal/report"
+	githubclient "github.com/Pnarayan-3/pr-sentinel/internal/github"
 )
 
 func main() {
 	fmt.Println("🤖 PR Sentinel")
 	fmt.Println("==========================")
 
-	cfg, err := config.Load(".")
-	if err != nil {
-		fmt.Printf("Configuration error: %v\n", err)
-		os.Exit(1)
-	}
+	repository := os.Getenv("GITHUB_REPOSITORY")
+	prNumberString := os.Getenv("PR_NUMBER")
+	token := os.Getenv("GITHUB_TOKEN")
 
-	fmt.Printf("Repository: %s\n", cfg.RepositoryPath)
-	fmt.Printf("Rules file: %s\n", cfg.RulesFile)
+	if repository != "" &&
+		prNumberString != "" &&
+		token != "" {
 
-	results, err := analyzer.Analyze(cfg)
-	if err != nil {
-		fmt.Printf("Analysis failed: %v\n", err)
-		os.Exit(1)
-	}
+		prNumber, err := strconv.Atoi(prNumberString)
 
-	fmt.Println()
-	fmt.Println("Analysis completed.")
-	fmt.Printf("Files analyzed: %d\n", results.FilesAnalyzed)
-	fmt.Printf("Findings: %d\n", len(results.Findings))
-
-	output := report.GenerateMarkdown(results)
-
-	fmt.Println()
-	fmt.Println(output)
-
-	if cfg.OutputFile != "" {
-		if err := os.WriteFile(
-			cfg.OutputFile,
-			[]byte(output),
-			0644,
-		); err != nil {
-			fmt.Printf("Unable to write report: %v\n", err)
+		if err != nil {
+			fmt.Println("Invalid PR_NUMBER")
 			os.Exit(1)
 		}
 
-		fmt.Printf("\nReport written to: %s\n", cfg.OutputFile)
+		parts := strings.SplitN(
+			repository,
+			"/",
+			2,
+		)
+
+		if len(parts) != 2 {
+			fmt.Println("Invalid GITHUB_REPOSITORY")
+			os.Exit(1)
+		}
+
+		owner := parts[0]
+		repo := parts[1]
+
+		client := githubclient.NewClient(
+			token,
+			owner,
+			repo,
+		)
+
+		files, err := client.GetPullRequestFiles(
+			prNumber,
+		)
+
+		if err != nil {
+			fmt.Printf(
+				"Failed to retrieve PR files: %v\n",
+				err,
+			)
+
+			os.Exit(1)
+		}
+
+		fmt.Printf(
+			"PR #%d\n",
+			prNumber,
+		)
+
+		fmt.Printf(
+			"Changed files: %d\n",
+			len(files),
+		)
+
+		for _, file := range files {
+			fmt.Printf(
+				"\n📁 %s\n",
+				file.Filename,
+			)
+
+			fmt.Printf(
+				"Status: %s\n",
+				file.Status,
+			)
+
+			fmt.Printf(
+				"Added: %d | Deleted: %d\n",
+				file.Additions,
+				file.Deletions,
+			)
+		}
+
+		return
 	}
 
-	if results.HasBlockingFindings() {
-		os.Exit(2)
-	}
+	fmt.Println(
+		"Running in local repository mode.",
+	)
+
+	// Existing local analyzer code goes here.
 }

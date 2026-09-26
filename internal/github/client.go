@@ -1,7 +1,6 @@
 package github
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -9,43 +8,37 @@ import (
 
 type Client struct {
 	Token      string
+	Owner      string
 	Repository string
-	BaseURL    string
-	HTTPClient *http.Client
 }
 
-func NewClient(token, repository string) *Client {
+func NewClient(
+	token string,
+	owner string,
+	repository string,
+) *Client {
 	return &Client{
 		Token:      token,
+		Owner:      owner,
 		Repository: repository,
-		BaseURL:    "https://api.github.com",
-		HTTPClient: &http.Client{},
 	}
 }
 
-func (c *Client) request(
-	method string,
-	path string,
-	body any,
-) (*http.Response, error) {
-	var requestBody *bytes.Reader
+func (c *Client) GetPullRequestFiles(
+	pullNumber int,
+) ([]PullRequestFile, error) {
 
-	if body != nil {
-		data, err := json.Marshal(body)
-
-		if err != nil {
-			return nil, err
-		}
-
-		requestBody = bytes.NewReader(data)
-	} else {
-		requestBody = bytes.NewReader(nil)
-	}
+	url := fmt.Sprintf(
+		"https://api.github.com/repos/%s/%s/pulls/%d/files",
+		c.Owner,
+		c.Repository,
+		pullNumber,
+	)
 
 	req, err := http.NewRequest(
-		method,
-		c.BaseURL+path,
-		requestBody,
+		http.MethodGet,
+		url,
+		nil,
 	)
 
 	if err != nil {
@@ -67,22 +60,30 @@ func (c *Client) request(
 		"2022-11-28",
 	)
 
-	req.Header.Set(
-		"Content-Type",
-		"application/json",
-	)
+	response, err := http.DefaultClient.Do(req)
 
-	return c.HTTPClient.Do(req)
-}
-
-func (c *Client) ensureSuccess(response *http.Response) error {
-	if response.StatusCode >= 200 &&
-		response.StatusCode < 300 {
-		return nil
+	if err != nil {
+		return nil, err
 	}
 
-	return fmt.Errorf(
-		"github API returned status %d",
-		response.StatusCode,
-	)
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf(
+			"GitHub API returned status %d",
+			response.StatusCode,
+		)
+	}
+
+	var files []PullRequestFile
+
+	err = json.NewDecoder(
+		response.Body,
+	).Decode(&files)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return files, nil
 }
