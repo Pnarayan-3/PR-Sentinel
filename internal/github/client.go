@@ -3,6 +3,7 @@ package github
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -24,21 +25,16 @@ func NewClient(
 	}
 }
 
-func (c *Client) GetPullRequestFiles(
-	pullNumber int,
-) ([]PullRequestFile, error) {
-
-	url := fmt.Sprintf(
-		"https://api.github.com/repos/%s/%s/pulls/%d/files",
-		c.Owner,
-		c.Repository,
-		pullNumber,
-	)
+func (c *Client) request(
+	method string,
+	url string,
+	body io.Reader,
+) (*http.Response, error) {
 
 	req, err := http.NewRequest(
-		http.MethodGet,
+		method,
 		url,
-		nil,
+		body,
 	)
 
 	if err != nil {
@@ -66,24 +62,42 @@ func (c *Client) GetPullRequestFiles(
 		return nil, err
 	}
 
-	defer response.Body.Close()
+	return response, nil
+}
 
-	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf(
+func (c *Client) ensureSuccess(
+	response *http.Response,
+) error {
+
+	if response.StatusCode >= 200 &&
+		response.StatusCode < 300 {
+		return nil
+	}
+
+	body, err := io.ReadAll(response.Body)
+
+	if err != nil {
+		return fmt.Errorf(
 			"GitHub API returned status %d",
 			response.StatusCode,
 		)
 	}
 
-	var files []PullRequestFile
+	return fmt.Errorf(
+		"GitHub API returned status %d: %s",
+		response.StatusCode,
+		string(body),
+	)
+}
 
-	err = json.NewDecoder(
+func decodeJSON(
+	response *http.Response,
+	target interface{},
+) error {
+
+	defer response.Body.Close()
+
+	return json.NewDecoder(
 		response.Body,
-	).Decode(&files)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return files, nil
+	).Decode(target)
 }
