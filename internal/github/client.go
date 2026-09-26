@@ -4,52 +4,63 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
+const githubAPIBaseURL = "https://api.github.com"
+
 type Client struct {
 	Token      string
+	Owner      string
 	Repository string
-	BaseURL    string
-	HTTPClient *http.Client
 }
 
-func NewClient(token, repository string) *Client {
+func NewClient(
+	token string,
+	owner string,
+	repository string,
+) *Client {
 	return &Client{
 		Token:      token,
+		Owner:      owner,
 		Repository: repository,
-		BaseURL:    "https://api.github.com",
-		HTTPClient: &http.Client{},
 	}
 }
 
 func (c *Client) request(
 	method string,
 	path string,
-	body any,
+	body interface{},
 ) (*http.Response, error) {
-	var requestBody *bytes.Reader
+
+	var requestBody io.Reader
 
 	if body != nil {
-		data, err := json.Marshal(body)
-
+		jsonBody, err := json.Marshal(body)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf(
+				"failed to encode request body: %w",
+				err,
+			)
 		}
 
-		requestBody = bytes.NewReader(data)
-	} else {
-		requestBody = bytes.NewReader(nil)
+		requestBody = bytes.NewBuffer(jsonBody)
 	}
+
+	url := githubAPIBaseURL + path
 
 	req, err := http.NewRequest(
 		method,
-		c.BaseURL+path,
+		url,
 		requestBody,
 	)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(
+			"failed to create GitHub request: %w",
+			err,
+		)
 	}
 
 	req.Header.Set(
@@ -67,22 +78,46 @@ func (c *Client) request(
 		"2022-11-28",
 	)
 
-	req.Header.Set(
-		"Content-Type",
-		"application/json",
-	)
+	if body != nil {
+		req.Header.Set(
+			"Content-Type",
+			"application/json",
+		)
+	}
 
-	return c.HTTPClient.Do(req)
+	response, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		return nil, fmt.Errorf(
+			"GitHub API request failed: %w",
+			err,
+		)
+	}
+
+	return response, nil
 }
 
-func (c *Client) ensureSuccess(response *http.Response) error {
+func (c *Client) ensureSuccess(
+	response *http.Response,
+) error {
+
 	if response.StatusCode >= 200 &&
 		response.StatusCode < 300 {
 		return nil
 	}
 
+	body, err := io.ReadAll(response.Body)
+
+	if err != nil {
+		return fmt.Errorf(
+			"GitHub API returned status %d",
+			response.StatusCode,
+		)
+	}
+
 	return fmt.Errorf(
-		"github API returned status %d",
+		"GitHub API returned status %d: %s",
 		response.StatusCode,
+		string(body),
 	)
 }

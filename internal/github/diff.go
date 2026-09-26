@@ -7,23 +7,20 @@ import (
 )
 
 type ChangedFile struct {
-	Filename string `json:"filename"`
-	Status   string `json:"status"`
-	Additions int   `json:"additions"`
-	Deletions int   `json:"deletions"`
-	Changes   int   `json:"changes"`
+	Filename  string `json:"filename"`
+	Status    string `json:"status"`
+	Additions int    `json:"additions"`
+	Deletions int    `json:"deletions"`
+	Changes   int    `json:"changes"`
 	Patch     string `json:"patch"`
-}
-
-type changedFilesResponse struct {
-	Files []ChangedFile `json:"files"`
 }
 
 func (c *Client) GetChangedFiles(
 	number string,
 ) ([]ChangedFile, error) {
 	path := fmt.Sprintf(
-		"/repos/%s/pulls/%s/files",
+		"/repos/%s/%s/pulls/%s/files",
+		c.Owner,
 		c.Repository,
 		number,
 	)
