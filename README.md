@@ -507,6 +507,6 @@ The current rule-based implementation provides a foundation for future advanced 
 # 👨‍💻 Author
 
 **Pushkar Narayan**
-Software Developer | Cloud | Automation 
+- Software Developer | Cloud | Automation 
 
 ---

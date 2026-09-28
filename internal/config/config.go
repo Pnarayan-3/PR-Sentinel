@@ -6,7 +6,7 @@ type Config struct {
 	OutputFile     string
 
 	// GitHub-related configuration.
-	GitHubToken string
+	//GitHubToken string
 	Repository string
 	PRNumber    string
 }
