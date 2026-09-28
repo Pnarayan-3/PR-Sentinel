@@ -3,7 +3,7 @@
 PR Sentinel is a rule-based code review agent written in Go.
 
 It can analyze source code and identify configurable security,
-quality, testing, and performance issues.
+quality, testing, and  performance issues.
 
 ## Features
 
