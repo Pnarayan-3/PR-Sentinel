@@ -26,7 +26,7 @@ func Load(repositoryPath string) (Config, error) {
 		RulesFile:      rulesFile,
 		OutputFile:     outputFile,
 
-		GitHubToken: os.Getenv("GITHUB_TOKEN"),
+		// GitHubToken: os.Getenv("GITHUB_TOKEN"),
 		Repository:  os.Getenv("GITHUB_REPOSITORY"),
 		PRNumber:    os.Getenv("PR_NUMBER"),
 	}, nil

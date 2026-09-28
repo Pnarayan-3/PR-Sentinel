@@ -20,7 +20,7 @@ func main() {
 	// for a pull request.
 	githubRepository := os.Getenv("GITHUB_REPOSITORY")
 	prNumberString := os.Getenv("PR_NUMBER")
-	githubToken := os.Getenv("GITHUB_TOKEN")
+	// githubToken := os.Getenv("GITHUB_TOKEN")
 
 	if githubRepository != "" &&
 		prNumberString != "" &&
