@@ -33,115 +33,14 @@ The current implementation can:
 
 ---
 
-## 🎯 Motivation
-
-In a software development environment, Pull Requests often need to be reviewed before they are merged.
-
-A typical review process looks like:
-
-```text
-Developer
-    │
-    ▼
-Create Pull Request
-    │
-    ▼
-CI/CD Pipeline
-    │
-    ▼
-Code Review
-    │
-    ▼
-Issues / Suggestions
-    │
-    ▼
-Fix Changes
-    │
-    ▼
-Merge
-```
-
-PR Sentinel explores how part of this review process can be automated.
-
-The long-term goal is to build a repository-level review agent that can:
-
-* Inspect Pull Request changes
-* Detect security problems
-* Identify code-quality issues
-* Prioritize findings
-* Explain why something is a problem
-* Suggest improvements
-* Report findings directly on Pull Requests
-
----
-
-# 🧠 How PR Sentinel Works
+## 🧠 How PR Sentinel Works
 
 At the current stage, PR Sentinel has two main analysis modes.
 
 ### 1. Local Repository Analysis
-
-```text
-Repository
-     │
-     ▼
-Configuration
-     │
-     ▼
-Rules
-     │
-     ▼
-Repository Scanner
-     │
-     ▼
-Source Files
-     │
-     ▼
-Rule Engine
-     │
-     ▼
-Findings
-     │
-     ▼
-Markdown Report
-```
-
 ### 2. GitHub Pull Request Analysis
 
-```text
-GitHub Pull Request
-        │
-        ▼
-GitHub Actions
-        │
-        ▼
-PR Sentinel
-        │
-        ▼
-GitHub REST API
-        │
-        ▼
-Changed Files
-        │
-        ▼
-PR Patch / Diff
-        │
-        ▼
-Patch Parser
-        │
-        ▼
-Added Lines
-        │
-        ▼
-Rule Analysis
-        │
-        ▼
-Review Findings
-```
-
----
-
-# 🏗️ Current Architecture
+### 🏗️ Current Architecture
 
 ```text
                          GitHub
@@ -187,7 +86,7 @@ Review Findings
 ```
 ---
 
-# ⚙️ Technology Stack
+### ⚙️ Technology Stack
 
 | Technology          | Purpose                   |
 | ------------------- | ------------------------- |
@@ -200,7 +99,7 @@ Review Findings
 ---
 
 
-# 🔄 GitHub Actions Workflow
+### 🔄 GitHub Actions Workflow
 
 The Pull Request workflow listens for:
 
@@ -229,7 +128,7 @@ if: github.event.pull_request.draft == false
 
 ---
 
-# 🚨 Severity Levels
+### 🚨 Severity Levels
 
 PR Sentinel supports severity-based findings.
 
@@ -278,14 +177,14 @@ or a secure secret manager.
 
 ---
 
-# 📝 Report Generation
+### 📝 Report Generation
 
 Findings are converted into a Markdown report.
 
 Example:
 
 ```markdown
-### 🔴 CRITICAL — SEC-001
+#### 🔴 CRITICAL — SEC-001
 
 **SEC-001 — Hardcoded Password**
 
@@ -311,9 +210,9 @@ when blocking findings are present.
 
 ---
 
-# 💻 Running PR Sentinel
+### 💻 Running PR Sentinel
 
-## Local Repository Mode
+### Local Repository Mode
 
 The application can analyze a repository using the configured repository path and rules.
 
@@ -327,7 +226,7 @@ Local Go installation is required for this mode.
 
 ---
 
-# 🔬 Patch Parser
+### 🔬 Patch Parser
 
 The patch parser understands Git diff hunks such as:
 
@@ -361,7 +260,7 @@ Unit tests were created for this functionality.
 
 ---
 
-# 🧪 Testing Strategy
+### 🧪 Testing Strategy
 
 PR Sentinel is designed so that the project can be tested through GitHub Actions.
 
@@ -383,7 +282,7 @@ The GitHub runner provides the required Go environment.
 
 ---
 
-# 🚧 Current Limitations
+### 🚧 Current Limitations
 
 PR Sentinel is currently a **rule-based prototype/agent**, not a full AI code-review system.
 
@@ -403,27 +302,7 @@ These are potential future extensions.
 
 ---
 
-# 🏆 What This Project Demonstrates
-
-PR Sentinel demonstrates practical experience with:
-
-* Go development
-* GitHub Actions
-* CI/CD
-* GitHub REST APIs
-* Pull Request automation
-* Git diff/patch processing
-* Rule engines
-* Static code analysis concepts
-* Security-focused code scanning
-* Automated reporting
-* Environment-based configuration
-* Git workflows
-* Issue → Branch → PR → CI → Merge workflow
-
----
-
-# 🔐 Security Considerations
+### 🔐 Security Considerations
 
 Never commit:
 
@@ -449,7 +328,7 @@ instead.
 
 ---
 
-# 📊 Example
+### 📊 Example
 
 A Pull Request introduces:
 
@@ -482,31 +361,9 @@ The goal is to catch the issue **during the Pull Request lifecycle**, before the
 
 ---
 
-# 🎯 Design Philosophy
-
-PR Sentinel follows four principles:
-
-### 1. Developer-focused
-
-Findings should be understandable and actionable.
-
-### 2. Rule-driven
-
-Rules should be easy to add and modify without rewriting the entire analyzer.
-
-### 3. CI/CD friendly
-
-The agent should work naturally inside GitHub Actions.
-
-### 4. Extensible
-
-The current rule-based implementation provides a foundation for future advanced analysis.
-
----
-
-# 👨‍💻 Author
+## 👨‍💻 Author
 
 **Pushkar Narayan**
-- Software Developer | Cloud | Automation 
+Software Developer | Cloud | Automation 
 
 ---
